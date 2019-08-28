@@ -30,6 +30,8 @@ type
     web2: TWebBrowser;
     btnDownAll: TButton;
     btnDownPage: TButton;
+    edtCurURL: TEdit;
+    Label2: TLabel;
     procedure btnBrowseClick(Sender: TObject);
     procedure web1DocumentComplete(ASender: TObject; const pDisp: IDispatch;
       const URL: OleVariant);
@@ -45,6 +47,7 @@ type
     procedure btnDownAllClick(Sender: TObject);
 
     procedure btnDownPageClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
   private
     { Private declarations }
     mK:integer;//当前正在加载的网页
@@ -131,7 +134,8 @@ begin
   all:=doc.styleSheets;
   len:=all.length;
   for I:=0 to len-1 do begin
-      item:=all.item(I);               //EmpryParam亦可
+      item:=all.item(I);               //EmpryParam亦可  Variants
+      if(not VarisNull(item))then
       memLinks.lines.add(item.href);
   end;
 end;
@@ -227,18 +231,38 @@ procedure TfMain.btnDownClick(Sender: TObject);
 var
   i:integer;
   url:string;
+  doc:IHTMLDocument2;
 begin
-  for I := 0 to memLinks.Lines.Count-1 do
-  begin
-    url:=memLinks2.Lines[i];
-    downloadfile(url);
+  //for I := 0 to memLinks.Lines.Count-1 do
+ // begin
+ //   url:=memLinks2.Lines[i];
+ //   downloadfile(url);
     //GetLocalFileNameFromIECache(url,localfilename);
-  end;
+ // end;
+  if not Assigned(web1.Document) then Exit;
+  doc:=web1.Document as IHTMLDocument2;
+  bDocComplete:=false;
+  mPage:=doc.url;
+  mSite:=doc.domain;
+  mProtocol:=doc.protocol;
+  if(mProtocol='HyperText Transfer Protocol with Privacy')then mProtocol:='https://' else mProtocol:='http://';
+  //i:=pos('/',mPage);
+  //mProtocol:=leftstr(mPage,i+1);
+  //msite:=getsite(mpage);
+  if(mDowns=nil)then mDowns:=tstringlist.Create;
+  if(mPages=nil)then mPages:=tstringlist.Create;
+  mDowns.Clear;
+  mPages.Clear;
+  mk:=0;
+  getUrlInPage(doc);
+  memLinks.Lines.Add(mdowns.Text);
+  downloadFilesThread();
+  bar1.Panels[0].Text:='正在解析：'+mPage;
 end;
 
 procedure TfMain.btnDownPageClick(Sender: TObject);
 begin
-  downloadfile(trim(edtIp.Text));
+  downloadfile(trim(edtCurURL.Text));
   showmessage('下载完成！');
 end;
 //将回车键事件映射到浏览器
@@ -281,10 +305,16 @@ begin
   FOleInPlaceActiveObject :=nil;
 end;
 
+procedure TfMain.FormShow(Sender: TObject);
+begin
+  fmain.Caption:='网页分析及整站下载工具v2.0(联系QQ1409232611VX:byc6352)';
+end;
+
 procedure TfMain.btnBrowseClick(Sender: TObject);
 var
   i:integer;
 begin
+  page1.ActivePageIndex:=0;
   mPage:=trim(edtIp.Text);
   if pos('http',mPage)=0 then begin
     showmessage('缺少http协议头！');
@@ -305,8 +335,9 @@ var
 begin
   if not Assigned(web1.Document) then Exit;
   if  (Web1.Busy) then exit;
-  if bDocComplete then exit;
-  bDocComplete:=true;
+
+  //if bDocComplete then exit;
+  //bDocComplete:=true;
   ms := TMemoryStream.Create;
   (web1.Document as IPersistStreamInit).Save(TStreamAdapter.Create(ms), True);
   ms.Position := 0;
@@ -315,6 +346,34 @@ begin
   ms.Free;
 
   doc:=web1.Document as IHTMLDocument2;
+
+  memLinks.Lines.Add('--------------------------------------------------');
+  edtCurURL.Text:=doc.url;
+  memLinks.Lines.Add(doc.url);
+  memLinks.Lines.Add(doc.title);
+  memLinks.Lines.Add(doc.protocol);
+  memLinks.Lines.Add(doc.domain);
+  memLinks.Lines.Add(doc.cookie);
+  memLinks.Lines.Add(doc.charset);
+  memLinks.Lines.Add(doc.defaultCharset);
+  {
+  try
+  if(doc.mimeType<>NULL)then
+  memLinks.Lines.Add(doc.mimeType);
+  if(doc.fileSize<>'')then
+  memLinks.Lines.Add(doc.fileSize);
+  if(doc.fileCreatedDate<>'')then
+  memLinks.Lines.Add(doc.fileCreatedDate);
+  if(doc.fileModifiedDate<>'')then
+  memLinks.Lines.Add(doc.fileModifiedDate);
+  if(doc.fileUpdatedDate<>'')then
+  memLinks.Lines.Add(doc.fileUpdatedDate);
+  //memLinks.Lines.Add(doc.Script.);
+  except
+
+  end;
+  }
+  memLinks.Lines.Add('--------------------------------------------------');
   getImgUrl(doc);
   getCssUrl(doc);
   getscriptUrl(doc);
@@ -351,7 +410,7 @@ begin
     if(pos('/',url)=1)then url:=mProtocol+mSite+url;
     if(pos(msite,url)=0)then continue;  //排除外链
     if(pos(url,mDowns.Text)>0)then continue;//排除重复链接
-    mDowns.add(url);
+    mDowns.add(url); //添加至待下载数组
   end;
   //网页中的css文件：
   sheets:=doc.styleSheets;
@@ -363,7 +422,7 @@ begin
     if(length(url)=0)then continue;
     if(pos('/',url)=1)then url:=mProtocol+mSite+url;
     if(pos(url,mDowns.Text)>0)then continue;//排除重复链接
-    mDowns.add(url);
+    mDowns.add(url); //添加至待下载数组
   end;
   //网页中的图片文件：
   all:=doc.images;
@@ -375,7 +434,7 @@ begin
     if(length(url)=0)then continue;
     if(pos('/',url)=1)then url:=mProtocol+mSite+url;
     if(pos(url,mDowns.Text)>0)then continue;//排除重复链接
-    mDowns.add(url);
+    mDowns.add(url); //添加至待下载数组
   end;
   //网页中的超链接文件：
   all:=doc.links;
@@ -392,8 +451,8 @@ begin
     p:=pos('#',url);
     if(p>0)then url:=leftstr(url,p-1);
     if(pos(url,mDowns.Text)>0)then continue;//排除重复链接
-    mDowns.add(url);
-    mPages.Add(url);
+    mDowns.add(url);  //添加至待下载数组
+    mPages.Add(url); //添加至页面数组
   end;
 
 end;
@@ -435,20 +494,20 @@ begin
       exit;
     end;
     bar1.Panels[0].Text:='共有网页：'+inttostr(mPages.Count)+'正在解析：'+inttostr(mk)+'['+mPages[mk]+']';
-    web2.Navigate(mPages[mk]);
+    web2.Navigate(mPages[mk]); //加载超链数组里面的页面；
     //timer1.Enabled:=true;
     bDocComplete:=false;
     exit;
   end;
   bDocComplete:=true;
-  doc:=web2.Document as IHTMLDocument2;
-  getUrlInPage(doc);
+  doc:=web2.Document as IHTMLDocument2; //得到接口；
+  getUrlInPage(doc); //解析网页；
   fmain.memLinks.Lines:=mdowns;
   fmain.memLinks2.Lines:=mpages;
-  mk:=mk+1;
+  mk:=mk+1; //下一个要解析的网页；
   //timer1.Enabled:=false;
 end;
-
+//设置不弹出脚本提示
 procedure TfMain.web2NavigateComplete2(ASender: TObject; const pDisp: IDispatch;
   const URL: OleVariant);
 begin
@@ -513,21 +572,21 @@ begin
   s:=url;
   p:=pos('/',s);
   dir:=leftstr(s,p-1);
-  if(dir='http:')then s:=rightstr(s,length(s)-7);
-  if(dir='https:')then s:=rightstr(s,length(s)-8);
+  if(dir='http:')then s:=rightstr(s,length(s)-7);  //去除http头部
+  if(dir='https:')then s:=rightstr(s,length(s)-8);  //去除https头部
   p:=pos('/',s);
   dir:=leftstr(s,p-1);
-  if(dir<>msite)then s:=msite+s;
-  fullDir:=mWorkDir;
+  if(dir<>msite)then s:=msite+s;  //添加主站地址
+  fullDir:=mWorkDir;  //mWorkDir程序工作目录；
   p:=pos('/',s);
   while p>0 do begin
     dir:=leftstr(s,p-1);
     fullDir:=fullDir+'\'+dir;
-    if(not directoryexists(fullDir))then forcedirectories(fullDir);
+    if(not directoryexists(fullDir))then forcedirectories(fullDir);  //创建本地文件目录
     s:=rightstr(s,length(s)-length(dir)-1);
     p:=pos('/',s);
   end;
-  p:=pos('?',s);
+  p:=pos('?',s);  //排除链接里面?后面的内容；
   if(p>0)then s:=leftstr(s,p-1);
   result:=fullDir+'\'+s;
 end;

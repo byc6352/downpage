@@ -136,6 +136,7 @@ begin
   for I:=0 to len-1 do begin
       item:=all.item(I);               //EmpryParam“‡ø…  Variants
       if(not VarisNull(item))then
+      if(not VarisNull(item.href))then
       memLinks.lines.add(item.href);
   end;
 end;
@@ -201,6 +202,8 @@ begin
   len:=all.length;
   for I:=0 to len-1 do begin
     item:=all.item(I);               //EmpryParam“‡ø…
+    if(not VarisNull(item))then
+    if(VarisNull(item.href))then continue;
     url:=item.href;
     url:=trim(url);
     if(length(url)=0)then continue;
@@ -356,23 +359,19 @@ begin
   memLinks.Lines.Add(doc.cookie);
   memLinks.Lines.Add(doc.charset);
   memLinks.Lines.Add(doc.defaultCharset);
-  {
-  try
-  if(doc.mimeType<>NULL)then
+      {
+  if(not VarisEmpty(doc.mimeType))then
   memLinks.Lines.Add(doc.mimeType);
-  if(doc.fileSize<>'')then
+  if(not varIsNull(doc.fileSize))then
   memLinks.Lines.Add(doc.fileSize);
-  if(doc.fileCreatedDate<>'')then
+  if(not varIsNull(doc.fileCreatedDate))then
   memLinks.Lines.Add(doc.fileCreatedDate);
-  if(doc.fileModifiedDate<>'')then
+  if(not varIsNull(doc.fileModifiedDate))then
   memLinks.Lines.Add(doc.fileModifiedDate);
-  if(doc.fileUpdatedDate<>'')then
+  if(not varIsNull(doc.fileUpdatedDate))then
   memLinks.Lines.Add(doc.fileUpdatedDate);
   //memLinks.Lines.Add(doc.Script.);
-  except
-
-  end;
-  }
+    }
   memLinks.Lines.Add('--------------------------------------------------');
   getImgUrl(doc);
   getCssUrl(doc);
@@ -417,6 +416,7 @@ begin
   len:=sheets.length;
   for I:=0 to len-1 do begin
     item:=sheets.item(I);               //EmpryParam“‡ø…
+    if(varisnull(item.href))then continue;
     url:=item.href;
     url:=trim(url);
     if(length(url)=0)then continue;
