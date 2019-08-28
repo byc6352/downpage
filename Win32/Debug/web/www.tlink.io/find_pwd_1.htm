@@ -1,0 +1,568 @@
+
+
+
+
+
+
+
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<link rel="icon" href="/images/favicon.ico">
+<script src="/js/jquery-1.11.2.min.js"></script>
+<script type="text/javascript" src="/js/bootstrap.min.js"></script>
+<link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" href="/css/jquery.datetimepicker.css">
+<link rel="stylesheet" type="text/css" href="/css/myIndex.css">
+<link rel="stylesheet" type="text/css" href="/css/style.min.css">
+<script type="text/javascript" src="/js/jquery-form.js"></script>
+<script type="text/javascript" src="/js/navbar.js"></script>
+<script type="text/javascript" src="/js/jquery.datetimepicker.js"></script>
+<script type="text/javascript" src="/js/address.js"></script>
+
+<link rel="stylesheet" href="/css/new/jquery.bxslider.css">
+<link rel="stylesheet" href="/css/new/index.css">
+<script src="/js/new/index.js"></script>
+<!-- 国内使用 -->
+<script charset="utf-8" src="https://g.alicdn.com/sd/ncpc/nc.js?t=0.1489433923186938"></script>
+<!-- 若您的主要用户来源于海外，请替换使用下面的js资源 -->
+<!-- <script type="text/javascript" charset="utf-8" src="http://aeis.alicdn.com/sd/ncpc/nc.js?t=2015052012"></script> -->
+
+<input type="hidden" id="basePath" name="basePath" value="">
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?cab9d2db73648c24a142c1d8df07c285";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+
+//邮箱正则
+function regEmail(email){
+	var regEmail=/^([a-zA-Z0-9.]*[-_]?[a-zA-Z0-9]+)*@([a-zA-Z0-9]*[-_]?[a-zA-Z0-9]+)+[\\.][A-Za-z]{2,3}([\\.][A-Za-z]{2})?$/;
+	return regEmail.test(email)?true:false;
+}
+//手机号正则
+function regMobile(mobile){
+	var regMobile = /^1(3|4|5|7|8|9)\d{9}$/;	//手机号码格式：1开头接着3或4或5或7或8接着9位
+	return regMobile.test(mobile)?true:false;
+}
+//电话正则
+function regPhone(phone){
+	 var regPhone = /^0(([1,2]\d)|([3-9]\d{2}))\d{7,8}$/;	//匹配固定电话 0开头接着非1或2接着数字两位接着7位或8位数字
+	 return regPhone.test(phone)?true:false;
+}
+//中文姓名正则
+function regChineseName(name){
+	var regName = /^[\u4E00-\u9FA5]{2,4}$/;
+	return regName.test(name)?true:false;
+}
+//中英文姓名正则
+function regCnEnName(name){
+	var regName = /^[\u4E00-\u9FA5a-zA-Z.●]+$/;	//匹配中文，英文字母及.●
+	return regName.test(name)?true:false;
+}
+//纯数字正则
+function regNumber(name){
+	var regName = /^[0-9]+$/;
+	return regName.test(name)?true:false;
+}
+//字母正则
+function regLetter(name){
+	var regName = /^[A-Za-z]+$/;
+	return regName.test(name)?true:false;
+}
+//是否为纯数字加字母
+function isNumberAndLetter(str){
+	var numberCount=0,letterCount=0,otherCount=0;
+	for(var i=0;i<str.length;i++){
+		if(regNumber(str[i])){
+			numberCount++;
+		}else if(regLetter(str[i])){
+			letterCount++;
+		}else{
+			otherCount++;
+		}
+	}
+	if(numberCount>0&&letterCount>0&&otherCount>=0){
+		return true;
+	}else{
+		return false;
+	}
+}
+
+/*jquery 限制文本框不能输入反斜杠*/  
+function fanXieGangLimit(obj){
+   	$(obj).keyup(function(){    
+         $(this).val($(this).val().replace(/[/]/g,''));  
+     }).bind("paste",function(){  //CTR+V事件处理    
+         $(this).val($(this).val().replace(/[/]/g,''));     
+     }).css("ime-mode", "disabled"); //CSS设置输入法不可用
+}
+
+/*jquery 限制文本框不能输入汉字*/  
+function chineseLimit(obj){
+   	$(obj).keyup(function(){    
+         $(this).val($(this).val().replace(/[\u4E00-\u9FA5]/g,''));  
+     }).bind("paste",function(){  //CTR+V事件处理    
+         $(this).val($(this).val().replace(/[\u4E00-\u9FA5]/g,''));     
+     }).css("ime-mode", "disabled"); //CSS设置输入法不可用
+}
+
+/************图片裁剪********************/
+var initCropperInModal = function(img, input,width,height){
+    // 初始化
+    var $image = $(img);
+    // 上传图片
+   	var $inputImage = $(input);
+   	var options = {
+        aspectRatio: width/height,	//纵横比
+        autoCropArea:1,
+        background:true,	//是否显示背景的黑白方格（类似PS里透明图层的显示方式）
+        modal:true,	//非裁剪区域是否用黑罩遮盖。
+        preview: '.up-pre-after',	// 预览图的class名
+    }
+    $image.cropper(options);
+    var URL = window.URL || window.webkitURL;
+    var blobURL;
+    if (URL) {
+        $inputImage.change(function () {
+            var files = this.files;
+            var file;
+			if (!$image.data('cropper')) {
+                return;
+            }
+            if (files && files.length) {
+               file = files[0];
+               // 判断是否是图像文件
+               if (/^image\/\w+$/.test(file.type)) {
+               		//如果URL已存在就先释放
+               		if(blobURL) {
+                        URL.revokeObjectURL(blobURL);
+                    }
+                    blobURL = URL.createObjectURL(file);
+                    // 重置cropper
+                    $image.cropper('reset').cropper('replace', blobURL);
+                    $inputImage.val('');
+                } else {
+                    window.alert('请选择一张图片');
+                }
+            }
+        });
+    } else {
+        $inputImage.prop('disabled', true);
+    }
+ 
+ }
+
+//向右旋转
+function rotateimgright(obj) {
+	if($(obj).attr("src")!=null&&$.trim($(obj).attr("src"))!=""){
+		$(obj).cropper('rotate', 90);
+	}
+}
+
+//向左旋转
+function rotateimgleft(obj) {
+	if($(obj).attr("src")!=null&&$.trim($(obj).attr("src"))!=""){
+		$(obj).cropper('rotate', -90);
+	}
+}
+</script>
+<!DOCTYPE html>
+<html>
+  <head>
+    <base />
+    <title>Tlink物联网-首页-找回密码</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+   <meta name="Keywords" content=""/>
+	<meta name="Description" content="" />
+	<meta http-equiv="pragma" content="no-cache">
+	<meta http-equiv="cache-control" content="no-cache">
+	<meta http-equiv="expires" content="0"> 
+
+	<!--
+	<link rel="stylesheet" type="text/css" href="styles.css">
+	-->
+    <script type="text/javascript">
+      function onSubmit(){
+        var loginName = $("#login_pass_name").val();
+        if(""!=loginName){
+	         $("#find_pwd_form").submit();
+	     }else{
+	        alert("请输入您的用户名/邮箱/手机！");
+	     }
+      }
+    </script>
+  </head>
+  
+  <body style="height:auto;">
+    <!--头部-->
+    
+
+
+
+<input type="hidden" id="userId" value="">
+<a href="" id="queryEmail" target="_blank"></a>
+<div class="pc-nav pc-nav-fixed">
+	<a href="/index.htm" class="pc-new-logo">
+		<img src="/images/new/logo.svg" alt="Tlink工业物联网平台，提供端管云一体化的物联网产品和解决方案。" title="Tlink工业物联网平台，提供端管云一体化的物联网产品和解决方案。" />
+	</a>
+	<ul class="pc-ul L ul-l">
+		<a href="/index.htm" class="pc-a">
+			首页
+		</a>
+		<a href="/yunApp.htm" class="pc-a">
+			云组态
+		</a>
+
+<!-- 			设备探索 -->
+<!-- 		</a> -->
+		<a href="/help.htm" class="pc-a">
+			帮助中心
+		</a>
+
+<!-- 			信息反馈 -->
+<!-- 		</a> -->
+		<a href="http://qy.tlink.io" target="_blank" class="pc-a">
+			企业版
+		</a>
+	</ul>
+	<ul class="pc-ul R">
+	  	
+		<div class="ul-line">
+		&nbsp;
+		</div>
+		<!-- 登录前-->
+		
+			<a href="javascript:;" class="pc-user" data-toggle="modal" data-target="#user">
+				登录
+			</a>
+			<a href="javascript:;" class="pc-register" data-toggle="modal" data-target="#register">
+				注册
+			</a>
+		
+		<!-- 登录后-->
+		
+		<div class="ul-line">
+		&nbsp;
+		</div>
+		<div href="#" class="pc-language down">
+			中文/EN
+			<div class="pc-language-none down-none">
+				<a href="/changeLanguage.htm?language=cn" class="pc-language-a pc-language-b">
+					<div class="pc-language-img">
+						<img src="/images/new/chaina_img.png" />
+					</div>
+					<div class="pc-language-txt">
+						简体中文
+					</div>
+				</a>
+				<a href="/changeLanguage.htm?language=en" class="pc-language-a">
+					<div class="pc-language-img">
+						<img src="/images/new/America_img.png" />
+					</div>
+					<div class="pc-language-txt">
+						English
+					</div>
+				</a>
+			</div>
+		</div>
+	</ul>
+</div>
+<!-- 登录 -->
+<div class="modal fade" id="user" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+	<div class="modal-dialog pc-dialog" role="document">
+		<div class="modal-content pc-content">
+			<div class="user-header">
+				<a href="javascript:;" class="user-header-a user-header-b">
+					账号登录
+				</a>
+			</div>
+			<div class="pc-modal-body">
+				<div class="pc-modal-list">
+					<i class="login-user">
+						<img src="/images/new/login-user.png" />
+					</i>
+					<input type="text" class="login_input" placeholder="请输入用户名/邮箱" id="loginName"/>
+				</div>
+				<div class="pc-modal-list">
+					<i class="login-user">
+						<img src="/images/new/password.png" />
+					</i>
+					<input type="password" class="login_input" placeholder="请输入密码" id="pass"/>
+				</div>
+				<div class="pc-modal-itme">
+					<div class="pc-modal-left">
+						<input type="checkbox" value="" class="pc-modal-check" id="demoDengLu"/>
+						演示账号登录
+					</div>
+					<a href="/find_pwd_1.htm" class="pc-modal-right">
+						忘记密码？
+					</a>
+				</div>
+				<div class="pc-modal-itme">
+					<a href="javascript:;" class="pc-modal-denglu" id="denglu">
+						登录
+					</a>
+				</div>
+				<div class="pc-modal-list">
+					合作账号登录：
+					<a href="/union/qqLogin.htm" class="pc-modal-ico">
+						<img src="/images/new/qq.png" />
+					</a>
+					<a href="http://open.weixin.qq.com/connect/qrconnect?appid=wxc855f4c4e69f7ae5&redirect_uri=https://www.tlink.io/union/wxLogin.htm&response_type=code&scope=snsapi_login&state=t#wechat_redirect" class="pc-modal-ico">
+						<img src="/images/new/weixin.png" />
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- 注册 -->
+<div class="modal fade" id="register" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+	<div class="modal-dialog pc-dialog" role="document">
+		<div class="modal-content pc-content">
+			<div class="user-header">
+				<a href="#tab5" id="mobileFlag" class="user-header-a tab-a tab-b user-header-c reg-switch">
+					手机注册
+				</a>
+				<a href="#tab6" id="emailFlag" class="user-header-a tab-a user-header-c reg-switch">
+					邮箱注册
+				</a>
+			</div>
+			<div class="pc-modal-body">
+				<input type="hidden" id="regFlag" value="mobileFlag">
+				<div class="tab-list tab-itme" id="tab5">
+					<div class="pc-modal-list">
+						<input type="text" class="register_input" placeholder="请输入手机号" id="mobile"/>
+					</div>
+					<div class="pc-modal-list nc-container" id="sliderNav">
+						
+					</div>
+					<div class="pc-modal-list">
+						<input type="text" class="register_yz" placeholder="请输入验证码" id="mobileCode" name="mobileCode"/>
+						<a href="javascript:;" class="register_hq" id="mbtn">
+							获取手机验证码
+						</a>
+					</div>
+					<div class="pc-modal-list">
+						<input type="password" class="register_input" placeholder="请输入密码" id="mobilePwd" name="mobilePwd"/>
+					</div>
+					<div class="pc-modal-list">
+						<input type="password" class="register_input" placeholder="请再次输入密码" id="mobileAgainPwd" name="mobileAgainPwd"/>
+					</div>
+					<div class="pc-modal-list">
+						<a href="javascript:;" class="pc-modal-denglu pc-user-reg">
+							注册
+						</a>
+					</div>
+				</div>
+				<div class="tab-list" id="tab6">
+					<div class="pc-modal-list">
+						<input type="text" class="register_input" placeholder="请输入邮箱" id="email"/>
+					</div>
+					<div class="pc-modal-list">
+						<input type="text" class="register_yz" placeholder="请输入验证码" id="emailCode" name="emailCode"/>
+						<a href="javascript:;" class="register_hq" id="ebtn">
+							获取邮箱验证码
+						</a>
+					</div>
+					<div class="pc-modal-list">
+						<input type="password" class="register_input" placeholder="请输入密码" id="emailPwd" name="emailPwd"/>
+					</div>
+					<div class="pc-modal-list">
+						<input type="password" class="register_input" placeholder="请再次输入密码" id="emailAgainPwd" name="emailAgainPwd"/>
+					</div>
+					<div class="pc-modal-list">
+						<a href="javascript:;" class="pc-modal-denglu pc-user-reg">
+							注册
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- 客服 -->
+		<div class="z-kefu">
+			<a href="javascript:;" class="z-kefu-popu">
+				联<br />
+				系<br />
+				我<br />
+				们<br />
+				<<br />
+			</a>
+			<div class="z-kefu-qq">
+				<div class="z-kefu-qq-title">
+					硬件咨询
+				</div>
+				<div class="z-kefu-con">
+					<a target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=476252756&amp;site=qq&amp;menu=yes" alt="点击这里给我发消息" title="点击这里给我发消息" class="z-qq-a">
+						<div class="z-qq-img">
+							<img src="/images/new/qq.png">
+						</div>
+						技术支持
+					</a>
+				</div>
+				<div class="z-kefu-qq-title">
+					平台咨询
+				</div>
+				<div class="z-kefu-con">
+					<a target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=476252756&amp;site=qq&amp;menu=yes" alt="点击这里给我发消息" title="点击这里给我发消息" class="z-qq-a">
+						<div class="z-qq-img">
+							<img src="/images/new/qq.png">
+						</div>
+						技术支持
+					</a>
+				</div>
+				<div class="z-kefu-qq-title">
+					关注微信
+				</div>
+				<div class="z-kefu-con">
+					<div class="z-kefu-erweima" style="cursor:pointer;" onclick="javascript:window.location.href='/wechat_alarm.htm?menu=触发器'">
+						<img src="/images/new/weixin.jpg">
+					</div>
+				</div>
+				<div class="z-kefu-qq-title">
+					联系电话
+				</div>
+				<div class="z-kefu-con">
+					<a target="_blank" href="javascript:;" class="z-qq-a">
+						<div class="z-qq-img">
+							<img src="/images/new/phone.png">
+						</div>
+						0755-23329978
+					</a>
+				</div>
+			</div>
+		</div>
+<script type="text/javascript">
+       
+       function checkForm(){
+       		var reg = $("#reg").val();
+       		if(reg == '1'){
+       			var Password_2 = $("#Password1").val();
+       			var ConfirmPassword_2 = $("#ConfirmPassword1").val();
+       			var mobile = $("#mobile").val();
+       			var mobilecode = $("#mobilecode").val();
+       			if("" == mobile){
+       			   alert("请输入手机号码！");
+       			   return false;
+       			}
+       			if("" == mobilecode){
+       			   alert("请输入手机验证码！");
+       			   return false;
+       			}
+       			if("" == Password_2){
+       			  alert("请输入密码！");
+       			  return false;
+       			}
+       			if("" == ConfirmPassword_2){
+       			  alert("请再次输入密码！");
+       			  return false;
+       			}
+       			if(Password_2!=ConfirmPassword_2){
+       				alert("两次密码输入不一致");
+       				return false
+       			}
+       		}else{
+       			var Password_1 = $("#Password_2").val();
+       			var ConfirmPassword_1 = $("#ConfirmPassword_2").val();
+       			var email = $("#email").val();
+       			var emailcode = $("#emailcode").val();
+       			if("" == email){
+       			   alert("请输入邮箱！");
+       			   return false;
+       			}
+       			if("" == emailcode){
+       			   alert("请输入邮箱验证码！");
+       			   return false;
+       			}
+       			if("" == Password_1){
+       			  alert("请输入密码！");
+       			  return false;
+       			}
+       			if("" == ConfirmPassword_1){
+       			  alert("请再次输入密码！");
+       			  return false;
+       			}
+       			if(Password_1!=ConfirmPassword_1){
+       				alert("两次密码输入不一致");
+       				return false
+       			}
+       		}
+       	    $.ajax({
+	           type: "POST",
+	           dataType: "html",
+	           url: "/user/registe.htm",
+	           data: $('#regForm').serialize(),
+	           success: function (data) {
+	               var jsonObj = $.parseJSON(data);
+				   if ('00' == jsonObj.flag) {
+				      window.location.href = jsonObj.url;
+				   }else{
+				      alert(jsonObj.msg);
+				   }
+	            }, error: function(data) {
+	               alert("error:" + data.responseText);
+	            }
+           });
+       	   //$("#regForm").submit();
+       }
+
+</script>
+
+<script type="text/javascript" src="//s.union.360.cn/203543.js" async defer></script>
+    <!--找回密码 -->
+    <div class="container-fluid find_p_container">
+        <div class="container">
+            <div class="col-sm-9 col-sm-offset-1"><span>安全中心</span>——&nbsp;找回密码</div>
+        </div>
+    </div>
+    <div class="container find_p_con">
+        <div class="col-sm-9 col-sm-offset-1 find_p">
+            <div class="col-sm-12 find_p_title">
+                <div class="col-sm-4 find_p_br find_p_back">1、账号信息</div>
+                <div class="col-sm-4 find_p_br">2、安全验证</div>
+                <div class="col-sm-4">3、重置密码</div>
+            </div>
+            <p class="col-sm-12">请填写您需要找回的账号</p>
+           <form action="/user/find_pwd_1.htm" id="find_pwd_form" method="post">
+           <input type="hidden" name="menu" value=""/>
+            <div class="col-sm-12 pd0">
+                <div class="col-sm-5 pd0">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <input type="text" name="login_pass_name" id="login_pass_name" class="form-control" placeholder="请输入用户名/邮箱/手机">
+                        </div>
+                    </div>
+                    <!-- 
+                    <div class="col-sm-12 pd0">
+                        <div class="col-sm-5">
+                            <div class="form-group">
+                                <input type="text" name="loginPassword_code" class="form-control" placeholder="请输入验证码">
+                            </div>
+                        </div>
+                        <div class="col-sm-5">
+                            <input id="code_" style="text-align: center; background-color: #e2d8b4;" type="text" disabled class="form-control">
+                        </div>
+                        <div class="col-sm-2 pd0">
+                            <a onclick="submit()">看不清？</a>
+                        </div>
+                    </div>
+                     -->
+                </div>
+            </div>
+            <div class="col-sm-2 fint_p_btn">
+                <div class="form-group">
+                    <input type="button" class="form-control btn btn-default" value="下一步"  onclick="onSubmit();">
+                </div>
+            </div>
+           </form> 
+        </div>
+        
+       
+    </div>
+</body>
+</html>

@@ -1,0 +1,519 @@
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="zh-cn">
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<meta name="renderer" content="webkit">
+		<title>TLINK物联网-云组态</title>
+    	<meta name="Keywords" content=""/>
+		<meta name="Description" content="" />
+		<link rel="icon" href="/images/favicon.ico">
+		<link rel="stylesheet" href="/css/bootstrap.min.css">
+		<link rel="stylesheet" href="/css/myIndex.css">
+		<link rel="stylesheet" href="/css/new/index.css">
+		<script src="/js/jquery.min.js"></script>
+		<script src="/js/bootstrap.min.js"></script>
+		<script src="/js/new/index.js"></script>
+	<body>
+		<input type="hidden" id="basePath" name="basePath" value="">
+		<input type="hidden" id="diyPath" name="diyPath" value="">
+		<!--头部-->
+	    
+
+
+
+<input type="hidden" id="userId" value="">
+<a href="" id="queryEmail" target="_blank"></a>
+<div class="pc-nav pc-nav-fixed">
+	<a href="/index.htm" class="pc-new-logo">
+		<img src="/images/new/logo.svg" alt="Tlink工业物联网平台，提供端管云一体化的物联网产品和解决方案。" title="Tlink工业物联网平台，提供端管云一体化的物联网产品和解决方案。" />
+	</a>
+	<ul class="pc-ul L ul-l">
+		<a href="/index.htm" class="pc-a">
+			首页
+		</a>
+		<a href="/yunApp.htm" class="pc-a">
+			云组态
+		</a>
+
+<!-- 			设备探索 -->
+<!-- 		</a> -->
+		<a href="/help.htm" class="pc-a">
+			帮助中心
+		</a>
+
+<!-- 			信息反馈 -->
+<!-- 		</a> -->
+		<a href="http://qy.tlink.io" target="_blank" class="pc-a">
+			企业版
+		</a>
+	</ul>
+	<ul class="pc-ul R">
+	  	
+		<div class="ul-line">
+		&nbsp;
+		</div>
+		<!-- 登录前-->
+		
+			<a href="javascript:;" class="pc-user" data-toggle="modal" data-target="#user">
+				登录
+			</a>
+			<a href="javascript:;" class="pc-register" data-toggle="modal" data-target="#register">
+				注册
+			</a>
+		
+		<!-- 登录后-->
+		
+		<div class="ul-line">
+		&nbsp;
+		</div>
+		<div href="#" class="pc-language down">
+			中文/EN
+			<div class="pc-language-none down-none">
+				<a href="/changeLanguage.htm?language=cn" class="pc-language-a pc-language-b"class="pc-language-a">
+					<div class="pc-language-img">
+						<img src="/images/new/chaina_img.png" />
+					</div>
+					<div class="pc-language-txt">
+						简体中文
+					</div>
+				</a>
+				<a href="/changeLanguage.htm?language=en" class="pc-language-a">
+					<div class="pc-language-img">
+						<img src="/images/new/America_img.png" />
+					</div>
+					<div class="pc-language-txt">
+						English
+					</div>
+				</a>
+			</div>
+		</div>
+	</ul>
+</div>
+<!-- 登录 -->
+<div class="modal fade" id="user" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+	<div class="modal-dialog pc-dialog" role="document">
+		<div class="modal-content pc-content">
+			<div class="user-header">
+				<a href="javascript:;" class="user-header-a user-header-b">
+					账号登录
+				</a>
+			</div>
+			<div class="pc-modal-body">
+				<div class="pc-modal-list">
+					<i class="login-user">
+						<img src="/images/new/login-user.png" />
+					</i>
+					<input type="text" class="login_input" placeholder="请输入用户名/邮箱" id="loginName"/>
+				</div>
+				<div class="pc-modal-list">
+					<i class="login-user">
+						<img src="/images/new/password.png" />
+					</i>
+					<input type="password" class="login_input" placeholder="请输入密码" id="pass"/>
+				</div>
+				<div class="pc-modal-itme">
+					<div class="pc-modal-left">
+						<input type="checkbox" value="" class="pc-modal-check" id="demoDengLu"/>
+						演示账号登录
+					</div>
+					<a href="/find_pwd_1.htm" class="pc-modal-right">
+						忘记密码？
+					</a>
+				</div>
+				<div class="pc-modal-itme">
+					<a href="javascript:;" class="pc-modal-denglu" id="denglu">
+						登录
+					</a>
+				</div>
+				<div class="pc-modal-list">
+					合作账号登录：
+					<a href="/union/qqLogin.htm" class="pc-modal-ico">
+						<img src="/images/new/qq.png" />
+					</a>
+					<a href="http://open.weixin.qq.com/connect/qrconnect?appid=wxc855f4c4e69f7ae5&redirect_uri=https://www.tlink.io/union/wxLogin.htm&response_type=code&scope=snsapi_login&state=t#wechat_redirect" class="pc-modal-ico">
+						<img src="/images/new/weixin.png" />
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- 注册 -->
+<div class="modal fade" id="register" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+	<div class="modal-dialog pc-dialog" role="document">
+		<div class="modal-content pc-content">
+			<div class="user-header">
+				<a href="#tab5" id="mobileFlag" class="user-header-a tab-a tab-b user-header-c reg-switch">
+					手机注册
+				</a>
+				<a href="#tab6" id="emailFlag" class="user-header-a tab-a user-header-c reg-switch">
+					邮箱注册
+				</a>
+			</div>
+			<div class="pc-modal-body">
+				<input type="hidden" id="regFlag" value="mobileFlag">
+				<div class="tab-list tab-itme" id="tab5">
+					<div class="pc-modal-list">
+						<input type="text" class="register_input" placeholder="请输入手机号" id="mobile"/>
+					</div>
+					<div class="pc-modal-list nc-container" id="sliderNav">
+						
+					</div>
+					<div class="pc-modal-list">
+						<input type="text" class="register_yz" placeholder="请输入验证码" id="mobileCode" name="mobileCode"/>
+						<a href="javascript:;" class="register_hq" id="mbtn">
+							获取手机验证码
+						</a>
+					</div>
+					<div class="pc-modal-list">
+						<input type="password" class="register_input" placeholder="请输入密码" id="mobilePwd" name="mobilePwd"/>
+					</div>
+					<div class="pc-modal-list">
+						<input type="password" class="register_input" placeholder="请再次输入密码" id="mobileAgainPwd" name="mobileAgainPwd"/>
+					</div>
+					<div class="pc-modal-list">
+						<a href="javascript:;" class="pc-modal-denglu pc-user-reg">
+							注册
+						</a>
+					</div>
+				</div>
+				<div class="tab-list" id="tab6">
+					<div class="pc-modal-list">
+						<input type="text" class="register_input" placeholder="请输入邮箱" id="email"/>
+					</div>
+					<div class="pc-modal-list">
+						<input type="text" class="register_yz" placeholder="请输入验证码" id="emailCode" name="emailCode"/>
+						<a href="javascript:;" class="register_hq" id="ebtn">
+							获取邮箱验证码
+						</a>
+					</div>
+					<div class="pc-modal-list">
+						<input type="password" class="register_input" placeholder="请输入密码" id="emailPwd" name="emailPwd"/>
+					</div>
+					<div class="pc-modal-list">
+						<input type="password" class="register_input" placeholder="请再次输入密码" id="emailAgainPwd" name="emailAgainPwd"/>
+					</div>
+					<div class="pc-modal-list">
+						<a href="javascript:;" class="pc-modal-denglu pc-user-reg">
+							注册
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- 客服 -->
+		<div class="z-kefu">
+			<a href="javascript:;" class="z-kefu-popu">
+				联<br />
+				系<br />
+				我<br />
+				们<br />
+				<<br />
+			</a>
+			<div class="z-kefu-qq">
+				<div class="z-kefu-qq-title">
+					硬件咨询
+				</div>
+				<div class="z-kefu-con">
+					<a target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=476252756&amp;site=qq&amp;menu=yes" alt="点击这里给我发消息" title="点击这里给我发消息" class="z-qq-a">
+						<div class="z-qq-img">
+							<img src="/images/new/qq.png">
+						</div>
+						技术支持
+					</a>
+				</div>
+				<div class="z-kefu-qq-title">
+					平台咨询
+				</div>
+				<div class="z-kefu-con">
+					<a target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=476252756&amp;site=qq&amp;menu=yes" alt="点击这里给我发消息" title="点击这里给我发消息" class="z-qq-a">
+						<div class="z-qq-img">
+							<img src="/images/new/qq.png">
+						</div>
+						技术支持
+					</a>
+				</div>
+				<div class="z-kefu-qq-title">
+					关注微信
+				</div>
+				<div class="z-kefu-con">
+					<div class="z-kefu-erweima" style="cursor:pointer;" onclick="javascript:window.location.href='/wechat_alarm.htm?menu=触发器'">
+						<img src="/images/new/weixin.jpg">
+					</div>
+				</div>
+				<div class="z-kefu-qq-title">
+					联系电话
+				</div>
+				<div class="z-kefu-con">
+					<a target="_blank" href="javascript:;" class="z-qq-a">
+						<div class="z-qq-img">
+							<img src="/images/new/phone.png">
+						</div>
+						0755-23329978
+					</a>
+				</div>
+			</div>
+		</div>
+<script type="text/javascript">
+       
+       function checkForm(){
+       		var reg = $("#reg").val();
+       		if(reg == '1'){
+       			var Password_2 = $("#Password1").val();
+       			var ConfirmPassword_2 = $("#ConfirmPassword1").val();
+       			var mobile = $("#mobile").val();
+       			var mobilecode = $("#mobilecode").val();
+       			if("" == mobile){
+       			   alert("请输入手机号码！");
+       			   return false;
+       			}
+       			if("" == mobilecode){
+       			   alert("请输入手机验证码！");
+       			   return false;
+       			}
+       			if("" == Password_2){
+       			  alert("请输入密码！");
+       			  return false;
+       			}
+       			if("" == ConfirmPassword_2){
+       			  alert("请再次输入密码！");
+       			  return false;
+       			}
+       			if(Password_2!=ConfirmPassword_2){
+       				alert("两次密码输入不一致");
+       				return false
+       			}
+       		}else{
+       			var Password_1 = $("#Password_2").val();
+       			var ConfirmPassword_1 = $("#ConfirmPassword_2").val();
+       			var email = $("#email").val();
+       			var emailcode = $("#emailcode").val();
+       			if("" == email){
+       			   alert("请输入邮箱！");
+       			   return false;
+       			}
+       			if("" == emailcode){
+       			   alert("请输入邮箱验证码！");
+       			   return false;
+       			}
+       			if("" == Password_1){
+       			  alert("请输入密码！");
+       			  return false;
+       			}
+       			if("" == ConfirmPassword_1){
+       			  alert("请再次输入密码！");
+       			  return false;
+       			}
+       			if(Password_1!=ConfirmPassword_1){
+       				alert("两次密码输入不一致");
+       				return false
+       			}
+       		}
+       	    $.ajax({
+	           type: "POST",
+	           dataType: "html",
+	           url: "/user/registe.htm",
+	           data: $('#regForm').serialize(),
+	           success: function (data) {
+	               var jsonObj = $.parseJSON(data);
+				   if ('00' == jsonObj.flag) {
+				      window.location.href = jsonObj.url;
+				   }else{
+				      alert(jsonObj.msg);
+				   }
+	            }, error: function(data) {
+	               alert("error:" + data.responseText);
+	            }
+           });
+       	   //$("#regForm").submit();
+       }
+
+</script>
+
+<script type="text/javascript" src="//s.union.360.cn/203543.js" async defer></script>
+	    <div class="new-zutaiapp">
+	    	<div class="new-zutaiappList new-zutaiappbanner">
+	    		<img src="/images/zutai_app/banner.png"/>
+	    	</div>
+	    	<div class="new-zutaiappList new-zutaiapplin">
+	    		<a href="javascript:;" class="new-zutaiappK">
+	    			<img src="/images/zutai_app/kaida.png"/>
+	    		</a>
+	    	</div>
+	    	<div class="new-zutaiappList new-zutaiappA">
+	    		<div class="new-zutaiappA-con">
+	    			<div class="new-zutaiappA-head">
+	    				依托在线组态技术，带来场景化物联监控新体验！
+	    			</div>
+	    			<div class="new-zutaiappA-title">
+	    				丰富的场景素材元素，随心拖拽组合搭建监控场景；实时显示设备/传感器状态；分享链接或二维码 即可用户人管理查看。
+	    			</div>
+	    			<div class="new-zutaiappA-list">
+	    				<div class="new-zutaiappA33">
+	    					<div class="new-zutaiappA-img">
+	    						<img src="/images/zutai_app/new-zutaiappA1.png"/>
+	    					</div>
+	    					<div class="new-zutaiappA-txt">
+	    						整合集成了工业/制造业/化工/食品/物流等多行业，生产加工的场景元素，基于丰富的素材快速搭建属于自己的物联场景。
+	    					</div>
+	    				</div>
+	    				<div class="new-zutaiappA33">
+	    					<div class="new-zutaiappA-img">
+	    						<img src="/images/zutai_app/new-zutaiappA2.png"/>
+	    					</div>
+	    					<div class="new-zutaiappA-txt">
+	    						物联场景自由绑定设备传感器，数据实时更新，做到在场景中监控，告别传统的数字图表密集型监控界面。
+	    					</div>
+	    				</div>
+	    				<div class="new-zutaiappA33">
+	    					<div class="new-zutaiappA-img">
+	    						<img src="/images/zutai_app/new-zutaiappA3.png"/>
+	    					</div>
+	    					<div class="new-zutaiappA-txt">
+	    						用户搭建好的物联场景(应用),可以生成链接/二维码等，可即时分享给多人查看，并支持加密。满足用户分级管理需求。
+	    					</div>
+	    				</div>
+	    			</div>
+	    		</div>
+	    	</div>
+	    	<div class="new-zutaiappList new-zutaiappB">
+	    		<div class="new-zutaiappB-title">
+	    			组态场景案例
+	    		</div>
+	    		<div class="new-zutaiappB-list">
+	    			<div class="new-zutaiappB-itme">
+	    				<div class="new-zutaiappB-txt">
+	    					制面产线监控
+	    				</div>
+	    				<div class="new-zutaiappB-img new-zutaiappB-imgA">
+	    					
+	    				</div>
+	    			</div>
+	    			<div class="new-zutaiappB-itme">
+	    				<div class="new-zutaiappB-txt">
+	    					烤箱集中监控
+	    				</div>
+	    				<div class="new-zutaiappB-img new-zutaiappB-imgB">
+	    					
+	    				</div>
+	    			</div>
+	    			<div class="new-zutaiappB-itme">
+	    				<div class="new-zutaiappB-txt">
+	    					楼宇冷气/风机监控
+	    				</div>
+	    				<div class="new-zutaiappB-img new-zutaiappB-imgC">
+	    					
+	    				</div>
+	    			</div>
+	    		</div>
+	    	</div>
+	    	<div class="new-zutaiappList new-zutaiappC">
+	    		<div class="new-zutaiappC-con">
+	    			<div class="new-zutaiappC-head">
+	    				云组态主要功能简介
+	    			</div>
+	    			<div class="new-zutaiappC-title">
+	    				丰富的场景素材元素，随心拖拽组合搭建监控场景；支持传感器绑定，实现场景化监控。
+	    			</div>
+	    			<div class="new-zutaiappC-nav">
+	    				<a href="#Cnav1" class="new-zutaiappC-a new-zutaiappC-b">
+	    					基本元素
+	    				</a>
+	    				<a href="#Cnav2" class="new-zutaiappC-a">
+	    					数据组件
+	    				</a>
+	    				<a href="#Cnav3" class="new-zutaiappC-a">
+	    					图片素材库
+	    				</a>
+	    				<a href="#Cnav4" class="new-zutaiappC-a">
+	    					组态管理
+	    				</a>
+	    				<a href="#Cnav5" class="new-zutaiappC-a">
+	    					分享查看
+	    				</a>
+	    			</div>
+	    			<div class="new-zutaiappC-body">
+	    				<div class="new-zutaiappC-none new-zutaiappC-show" id="Cnav1">
+	    					<img src="/images/zutai_app/new-zutaiappC1.png"/>
+	    				</div>
+	    				<div class="new-zutaiappC-none" id="Cnav2">
+	    					<img src="/images/zutai_app/new-zutaiappC2.png"/>
+	    				</div>
+	    				<div class="new-zutaiappC-none" id="Cnav3">
+	    					<img src="/images/zutai_app/new-zutaiappC3.png"/>
+	    				</div>
+	    				<div class="new-zutaiappC-none" id="Cnav4">
+	    					<img src="/images/zutai_app/new-zutaiappC4.png"/>
+	    				</div>
+	    				<div class="new-zutaiappC-none" id="Cnav5">
+	    					<img src="/images/zutai_app/new-zutaiappC5.png"/>
+	    				</div>
+	    			</div>
+	    		</div>
+	    	</div>
+	    	<div class="new-zutaiappList new-zutaiappD">
+	    		<div class="new-zutaiappD-con">
+	    			<div class="new-zutaiappD-head">
+	    				搭建云组态步骤
+	    			</div>
+	    			<div class="new-zutaiappD-title">
+	    				拖拽式交互，无需任何基础，只需7步便可快速搭建一个新的组态。<span>（*已知已有组态ID,用户名，使用复制模板功能更加快捷）</span>
+	    			</div>
+	    			<div class="new-zutaiappD-img">
+	    				<img src="/images/zutai_app/new-zutaiappD1.png"/>
+	    			</div>
+	    		</div>
+	    	</div>		
+	    			
+	    	
+	    	
+	    	<div class="new-zutaiappList new-zutaiapplin">
+	    		<a href="javascript:;" class="new-zutaiappK">
+	    			<img src="/images/zutai_app/kaida.png"/>
+	    		</a>
+	    	</div>
+	    </div>
+	</body>
+	<script>
+		+function($)
+		{
+			"use strict";
+			var clsA = "new-zutaiappC-a";//点击事件
+			var clsB = "new-zutaiappC-b";//点中后效果
+			var conB = "new-zutaiappC-show";
+			$(document).on("click","."+clsA, function(e)
+			{
+				e.preventDefault();//阻止浏览器默认事件
+				var $a = $(e.currentTarget);
+				var href = $a.attr("href");
+				if(!/^#/.test(href)) return;
+				if($a.hasClass(clsB)) return;
+				$("."+clsB).removeClass(clsB);
+				$a.addClass(clsB);
+				$("."+conB).removeClass(conB);
+				$(href).addClass(conB);
+			});
+			//云组态跳转
+			 $(".new-zutaiappK").on("click",function()
+	         {
+	          		var userId=$("#userId").val();
+	          		var diyPath=$("#diyPath").val();
+	          		if(userId!=null&&userId!=""){
+	          			window.location.href=diyPath+"/goYunZutaiPage.htm?menu=云组态";
+	          		}else{
+	          			$("#user").modal('show');
+	          		}
+	         });
+		}($);
+	</script>
+</html>
